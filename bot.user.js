@@ -214,6 +214,25 @@ console.log("Running Apos Bot!");
         return false;
     }
 
+    function getMass(blob){
+        setShowMass(true);
+        //This var is only declared while showMass=true.
+        return blob.O.F;
+    }
+
+    function getTimeToRemerge(mass){
+        return ((mass*0.02) +30);
+    }
+
+    function getBlobCount(player){
+        var count = 0;
+        Object.keys(player).forEach(function(item, i) {
+            count++;
+        });
+        //return Object.keys(player).length - 1;
+        return count - 1;
+    }
+
     function separateListBasedOnFunction(listToUse, blob) {
         var foodElementList = [];
         var threatList = [];
@@ -241,6 +260,9 @@ console.log("Running Apos Bot!");
                     //IT'S VIRUS!
                     virusList.push(listToUse[element]);
                 }
+            }else if(isMe && (getBlobCount(getPlayer()) > 0)){
+                //Attempt to make the other cell follow the mother one
+                foodElementList.push(listToUse[element]);
             }
         });
 
@@ -704,6 +726,7 @@ console.log("Running Apos Bot!");
     function findDestination(followMouse) {
         var player = getPlayer();
         var interNodes = getMemoryCells();
+        //console.warn("findDestination(followMouse) was called from line " + arguments.callee.caller.toString());
 
         if ( /*!toggle*/ 1) {
             var useMouseX = (getMouseX() - getWidth() / 2 + getX() * getRatio()) / getRatio();
@@ -970,8 +993,23 @@ console.log("Running Apos Bot!");
                         //tempMoveX = line1[0];
                         //tempMoveY = line1[1];
                     } else if (badAngles.length > 0 && goodAngles == 0) {
-                        //TODO: CODE TO HANDLE WHEN THERE IS NO GOOD ANGLE BUT THERE ARE ENEMIES AROUND!!!!!!!!!!!!!
-                        destinationChoices.push([tempMoveX, tempMoveY]);
+						var angleWeights = [] //Put weights on the angles according to enemy distance
+						for (var i = 0; i < allPossibleThreats.length; i++){
+							var dist = computeDistance(player[k].x, player[k].y, allPossibleThreats[i].x, allPossibleThreats[i].y);
+							var angle = getAngle(allPossibleThreats[i].x, allPossibleThreats[i].y, player[k].x, player[k].y);
+							angleWeights.push([angle,dist]);
+						}
+						var maxDist = 0;
+						var finalAngle = 0;
+						for (var i = 0; i < angleWeights.length; i++){
+							if (angleWeights[i][1] > maxDist){
+								maxDist = angleWeights[i][1];
+								finalAngle = (angleWeights[i][0] + 180).mod(360);
+							}
+						}
+						var line1 = followAngle(finalAngle,player[k].x,player[k].y,f.verticalDistance());
+                        drawLine(player[k].x, player[k].y, line1[0], line1[1], 2);
+						destinationChoices.push(line1);
                     } else if (clusterAllFood.length > 0) {
                         for (var i = 0; i < clusterAllFood.length; i++) {
                             //console.log("mefore: " + clusterAllFood[i][2]);
