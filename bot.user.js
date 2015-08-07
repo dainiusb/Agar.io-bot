@@ -137,8 +137,10 @@ console.log("Running Apos Bot!");
         return false;
     }
 
+    var notSplitDangerValue = 7;
+
     function canSplit(player1, player2) {
-        return compareSize(player1, player2, 2.30) && !compareSize(player1, player2, 7);
+        return compareSize(player1, player2, 2.30) && !compareSize(player1, player2, notSplitDangerValue);
     }
 
     function isItMe(player, cell2) {
@@ -537,7 +539,7 @@ console.log("Running Apos Bot!");
         //var distanceFromWallY = mapSizeY/3;
         var distanceFromWallY = 2000;
         var distanceFromWallX = 2000;
-        if (Math.abs(f.getMapEndY - f.getMapStartY < distanceFromWallY) || Math.abs(f.getMapEndX - f.getMapEndX < distanceFromWallX)){
+        if (Math.abs(f.getMapEndY - f.getMapStartY) < distanceFromWallY || Math.abs(f.getMapEndX - f.getMapEndX) < distanceFromWallX){
             //MAPTOOSMALL
             //console.log("Map Too Small!");
             listToUse.push([
@@ -1027,9 +1029,12 @@ console.log("Running Apos Bot!");
                         drawPoint(line1[0], line1[1], 0, "" + i + ": 0");
                         drawPoint(line2[0], line2[1], 0, "" + i + ": 1");
                     }
-
+                    
                     if (followMouse && goodAngles.length == 0) {
                         //This is the follow the mouse mode
+                        
+                        
+                        
                         var distance = computeDistance(player[k].x, player[k].y, tempPoint[0], tempPoint[1]);
 
                         var shiftedAngle = shiftAngle(obstacleAngles, getAngle(tempPoint[0], tempPoint[1], player[k].x, player[k].y), [0, 360]);
@@ -1062,6 +1067,10 @@ console.log("Running Apos Bot!");
                         //tempMoveX = line1[0];
                         //tempMoveY = line1[1];
                     } else if (badAngles.length > 0 && goodAngles == 0) {
+                    				if(notSplitDangerValue > 3.5){
+                    					notSplitDangerValue -= 0.5;
+                    					setTimeout(function(){ notSplitDangerValue = 7; }, 5000);
+                    				}
 						var angleWeights = [] //Put weights on the angles according to enemy distance
 						for (var i = 0; i < allPossibleThreats.length; i++){
 							var dist = computeDistance(player[k].x, player[k].y, allPossibleThreats[i].x, allPossibleThreats[i].y);
